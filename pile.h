@@ -13,7 +13,8 @@ class Pile {
   void ShowPile() const;
   CardName TopCardName() const;
   const Card* TopCard() const;
-
+  void TakeCard(CardSet* dest);
+  
   CardSet cards;
   CardName contents;
 };

@@ -12,9 +12,6 @@ using std::vector;
 Game::Game(int num_players) {
   player_on_turn = 0;
 
-  std::random_device rd;
-  std::mt19937 g(rd());
-
   vector<CardName> kingdom;
   kingdom.push_back(COPPER);
   kingdom.push_back(SILVER);
@@ -23,34 +20,47 @@ Game::Game(int num_players) {
   kingdom.push_back(DUCHY);
   kingdom.push_back(PROVINCE);
 
+  std::random_device rd;
+  std::mt19937 g(rd());
+
   for (int i = 0; i < num_players; ++i) {
     cout << "i: " << i << endl;
     Player player;
     player.Shuffle(g);
-    player.DrawToHand();
+    player.DrawToHand(g);
 
     players.push_back(player);
   }
 
   MakePiles(kingdom, num_players);
-  ShowPiles();
+}
+
+void Game::PlayGame(const vector<const Strategy*>& strategies,
+		    std::mt19937& g) {
+  while(PlayTurn(strategies, g));
 }
 
 void Game::PlayGame(const vector<const Strategy*>& strategies) {
-  PlayTurn(strategies);
+  std::random_device rd;
+  std::mt19937 g(rd());
+  PlayGame(strategies, g);
 }
 
-void Game::PlayTurn(const vector<const Strategy*>& strategies) {
+bool Game::PlayTurn(const vector<const Strategy*>& strategies,
+		    std::mt19937& g) {
   cout << "player_on_turn: " << player_on_turn << endl;
+  ShowPiles();
   Player* player = &(players[player_on_turn]);
-  player->PlayTurn(this, strategies[player_on_turn]);
+  player->PlayTurn(this, strategies[player_on_turn], g);
   if (IsOver()) {
     HandleGameOver();
+    return false;
   }
   ++player_on_turn;
   if (player_on_turn >= players.size()) {
     player_on_turn = 0;
   }
+  return true;
 }
 
 void Game::HandleGameOver() {
@@ -70,10 +80,12 @@ bool Game::IsOver() {
   return false;
 }
 
-const Pile* Game::FindPile(CardName card_name) const {
-  for (const Pile& pile : piles) {
-    if (pile.contents == card_name) {
-      return &pile;
+// Eventually needs to handle split/mixed piles.
+Pile* Game::FindPile(CardName card_name) {
+  for (int i = 0; i < piles.size(); ++i) {
+    Pile* pile = &(piles[i]);
+    if (pile->contents == card_name) {
+      return pile;
     }
   }
   return nullptr;

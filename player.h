@@ -1,6 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
+#include "card.h"
 #include "card_set.h"
 #include "game.h"
 #include "strategy.h"
@@ -11,20 +12,30 @@ class Player {
  public:
   Player();
   void Shuffle(std::mt19937& g);
-  void DrawToHand();
+  void DrawToHand(std::mt19937& g);
+  void DrawFromDeck(int n, CardSet* dest, std::mt19937& g);
+  void PutDiscardPileInDeckAndShuffle(std::mt19937& g);
   
-  void PlayTurn(Game* game, const Strategy* strategy);
+  void PlayTurn(Game* game, const Strategy* strategy, std::mt19937& g);
   void ActionPhase(Game* game, const Strategy* strategy);
   void BuyPhase(Game* game, const Strategy* strategy);
   void CleanUp(Game* game, const Strategy* strategy);
-
+  void CleanUpCardFromPlay(Game* game, const Strategy* strategy, int i);
+  bool ShouldDiscardFromPlay(Game* game, const Strategy* strategy,
+			     const Card& card);
+  void CleanUpCardFromHand(Game* game, const Strategy* strategy, int i);
+  bool ShouldDiscardFromHand(Game* game, const Strategy* strategy,
+			     const Card& card);
+  
   void InitializeTurn(Game* game);
   void InflateCardsInHand();
   void PlayAllTreasures(Game* game);
   bool PlayTreasure(Game* game);
 
   void PlayCardAsTreasure(int i, Game* game);
-  
+
+  void BuyCard(Game* game, const Strategy* strategy, CardName);
+
   bool CanBuyWith(const Card& card, int coins, const Game* game) const;
 
   void ShowHand() const;

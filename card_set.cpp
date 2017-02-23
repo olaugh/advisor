@@ -20,6 +20,10 @@ bool CardSet::IsEmpty() const {
   return cards.empty();
 }
 
+void CardSet::Clear() {
+  cards.clear();
+}
+
 void CardSet::AddCard(CardName card) {
   cards.push_back(card);
 }

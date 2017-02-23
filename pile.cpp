@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <memory>
 
@@ -35,4 +36,9 @@ const Card* Pile::TopCard() const {
   }
   Card* card = Card::MakeCard(TopCardName());
   return card;
+}
+
+void Pile::TakeCard(CardSet* dest) {
+  assert(!IsEmpty());
+  cards.Draw(1, dest);
 }
