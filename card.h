@@ -60,7 +60,10 @@ public:
   static Card* MakeCard(CardName card_name);
   static int NumInPile(CardName, int num_players);
 
+  bool HasType(CardType type) const;
   bool IsTreasure() const;
+  bool IsVictory() const;
+  bool IsAction() const;
   int Cost() const;
   
   std::set<CardType> card_types;
@@ -108,6 +111,11 @@ public:
 class Province : public Card {
 public:
   Province();
+};
+
+class Smithy : public Card {
+public:
+  Smithy();
 };
 
 #endif
