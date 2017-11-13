@@ -15,6 +15,7 @@ Player::Player() {
 }
 
 void Player::Shuffle(std::mt19937& g) {
+  cout << "Shuffle(...)" << endl;
   deck.Shuffle(g);
 }
 
@@ -23,9 +24,14 @@ void Player::DrawToHand(std::mt19937& g) {
 }
 
 void Player::DrawFromDeck(int n, CardSet* dest, std::mt19937& g) {
+  cout << "DrawFromDeck(" << n << ", ...)" << endl;
   for (int i = 0; i < n; ++i) {
     if (deck.IsEmpty()) {
-      if (discard_pile.IsEmpty()) return;
+      cout << "deck is empty" << endl;
+      if (discard_pile.IsEmpty()) {
+	cout << "discard pile is empty too" << endl;
+	return;
+      }
       PutDiscardPileInDeckAndShuffle(g);
     }
     deck.Draw(1, dest);
@@ -33,6 +39,7 @@ void Player::DrawFromDeck(int n, CardSet* dest, std::mt19937& g) {
 }
 
 void Player::PutDiscardPileInDeckAndShuffle(std::mt19937& g) {
+  cout << "PutDiscardPileInDeckAndShuffle(...)" << endl;
   for (CardName card_name : discard_pile.cards) {
     deck.AddCard(card_name);
   }
@@ -44,7 +51,7 @@ void Player::PlayTurn(Game* game, const Strategy* strategy, std::mt19937& g) {
   cout << "Playing turn..." << endl;
   InitializeTurn(game);
   InflateCardsInHand();
-  ActionPhase(game, strategy);
+  ActionPhase(game, strategy, g);
   BuyPhase(game, strategy);
   CleanUp(game, strategy);
   DrawToHand(g);
@@ -67,8 +74,46 @@ void Player::InitializeTurn(Game* game) {
   buys = 1;
 }
 
-void Player::ActionPhase(Game* game, const Strategy* strategy) {
+void Player::ActionPhase(Game* game, const Strategy* strategy, std::mt19937& g) {
   cout << "ActionPhase(...)" << endl;
+  ShowHand();
+  while(PlayAction(game, strategy, g));
+}
+
+bool Player::PlayAction(Game* game, const Strategy* strategy, std::mt19937& g) {
+  cout << "Actions: " << actions << endl;;
+  if (actions == 0) return false;
+  const Card* card = strategy->ChooseAction(this, game);
+  if (card != nullptr) {
+    PlayAction(game, strategy, card, g);
+    actions--;
+    return true;
+  }
+  return false;
+}
+
+void Player::PlayAction(Game* game, const Strategy* strategy,
+			const Card* card, std::mt19937& g) {
+  const int i = FindCardIndexInHand(card->card_name);
+  assert(i >= 0);
+  cards_in_play.push_back(cards_in_hand[i]);
+  hand.RemoveAt(i);
+  cout << "Playing a " << card->display_name << endl;
+  cout << "Drawing " << card->action_plus_cards << " cards" << endl;
+  for (int j = 0; j < card->action_plus_cards; ++j) {
+    DrawFromDeck(1, &hand, g);
+  }
+  ReinflateCardsInHand();
+}
+
+int Player::FindCardIndexInHand(CardName card_name) const {
+  for (int i = 0; i < cards_in_hand.size(); ++i) {
+    const Card& card = cards_in_hand[i];
+    if (card.card_name == card_name) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 void Player::BuyPhase(Game* game, const Strategy* strategy) {
@@ -124,6 +169,11 @@ void Player::InflateCardsInHand() {
     Card* card = Card::MakeCard(card_name);
     cards_in_hand.push_back(*card);
   }
+}
+
+void Player::ReinflateCardsInHand() {
+  cards_in_hand.clear();
+  InflateCardsInHand();
 }
 
 void Player::PlayAllTreasures(Game* game) {

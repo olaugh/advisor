@@ -39,6 +39,7 @@ Game::Game(int num_players) {
 
 void Game::PlayGame(const vector<const Strategy*>& strategies,
 		    std::mt19937& g) {
+  turn_number = 0;
   while(PlayTurn(strategies, g));
 }
 
@@ -50,6 +51,7 @@ void Game::PlayGame(const vector<const Strategy*>& strategies) {
 
 bool Game::PlayTurn(const vector<const Strategy*>& strategies,
 		    std::mt19937& g) {
+  cout << "turn_number: " << turn_number << endl;
   cout << "player_on_turn: " << player_on_turn << endl;
   ShowPiles();
   Player* player = &(players[player_on_turn]);
@@ -61,12 +63,14 @@ bool Game::PlayTurn(const vector<const Strategy*>& strategies,
   ++player_on_turn;
   if (player_on_turn >= players.size()) {
     player_on_turn = 0;
+    ++turn_number;
   }
   return true;
 }
 
 void Game::HandleGameOver() {
   cout << "Game over!" << endl;
+  ShowPiles();
 }
 
 bool Game::IsOver() {

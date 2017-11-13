@@ -24,6 +24,7 @@ class Game {
   std::vector<Card> CardsAtopPiles() const;
   
   std::vector<Player> players;
+  int turn_number;
   int player_on_turn;
   std::vector<Pile> piles;
   CardSet trash;

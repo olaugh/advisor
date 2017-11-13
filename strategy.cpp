@@ -28,6 +28,16 @@ namespace {
   }
 }  // namespace
 
+const Card* Strategy::ChooseAction(const Player* player,
+				   const Game* game) const {
+  for (const Card& card : player->cards_in_hand) {
+    if (card.IsAction()) {
+      return &card;
+    }
+  }
+  return nullptr;
+}
+
 vector<CardName> Strategy::ChooseBuys(const Player* player,
 				      const Game* game) const {
   // Default dumbest strategy, always buys most expensive card it can,

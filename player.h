@@ -17,8 +17,22 @@ class Player {
   void PutDiscardPileInDeckAndShuffle(std::mt19937& g);
   
   void PlayTurn(Game* game, const Strategy* strategy, std::mt19937& g);
-  void ActionPhase(Game* game, const Strategy* strategy);
+  
+  void ActionPhase(Game* game, const Strategy* strategy, std::mt19937& g);
+  bool PlayAction(Game* game, const Strategy* strategy,
+		  std::mt19937& g);
+  void PlayAction(Game* game, const Strategy* strategy, const Card* card,
+		  std::mt19937& g);
+  int FindCardIndexInHand(CardName card_name) const;
+  
   void BuyPhase(Game* game, const Strategy* strategy);
+  void PlayAllTreasures(Game* game);
+  bool PlayTreasure(Game* game);
+  void PlayCardAsTreasure(int i, Game* game);
+  void BuyCard(Game* game, const Strategy* strategy, CardName);
+  bool CanBuyWith(const Card& card, int coins, const Game* game) const;
+
+  
   void CleanUp(Game* game, const Strategy* strategy);
   void CleanUpCardFromPlay(Game* game, const Strategy* strategy, int i);
   bool ShouldDiscardFromPlay(Game* game, const Strategy* strategy,
@@ -29,15 +43,7 @@ class Player {
   
   void InitializeTurn(Game* game);
   void InflateCardsInHand();
-  void PlayAllTreasures(Game* game);
-  bool PlayTreasure(Game* game);
-
-  void PlayCardAsTreasure(int i, Game* game);
-
-  void BuyCard(Game* game, const Strategy* strategy, CardName);
-
-  bool CanBuyWith(const Card& card, int coins, const Game* game) const;
-
+  void ReinflateCardsInHand();
   void ShowHand() const;
   void ShowInPlay() const;
   
