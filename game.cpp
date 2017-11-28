@@ -21,7 +21,8 @@ Game::Game(int num_players) {
   kingdom.push_back(PROVINCE);
 
   kingdom.push_back(SMITHY);
-  
+  kingdom.push_back(VILLAGE);
+
   std::random_device rd;
   std::mt19937 g(rd());
 

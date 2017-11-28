@@ -64,6 +64,7 @@ public:
   bool IsTreasure() const;
   bool IsVictory() const;
   bool IsAction() const;
+  bool IsTerminal() const;
   int Cost() const;
   
   std::set<CardType> card_types;
@@ -73,14 +74,14 @@ public:
   
   int base_cost;
   
-  int action_plus_actions;
-  int action_plus_buys;
-  int action_plus_cards;
-  int action_plus_coin;
+  int action_plus_actions = 0;
+  int action_plus_buys = 0;
+  int action_plus_cards = 0;
+  int action_plus_coin = 0;
   
-  int treasure_plus_coin;
+  int treasure_plus_coin = 0;
   
-  int final_vp;
+  int final_vp = 0;
 };
 
 class Copper : public Card {
@@ -116,6 +117,11 @@ public:
 class Smithy : public Card {
 public:
   Smithy();
+};
+
+class Village : public Card {
+public:
+  Village();
 };
 
 #endif

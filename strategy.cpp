@@ -30,14 +30,40 @@ namespace {
 
 const Card* Strategy::ChooseAction(const Player* player,
 				   const Game* game) const {
+  double best_action_value = -999;
+  const Card* chosen_card = nullptr;
   for (const Card& card : player->cards_in_hand) {
     if (card.IsAction()) {
-      return &card;
+      const double value = ActionPlayValue(card, player, game);
+      if (value > best_action_value) {
+	cout << "play " << card.display_name << "? value: " << value << endl;
+	chosen_card = &card;
+	best_action_value = value;
+      }
     }
   }
-  return nullptr;
+  if (chosen_card != nullptr) {
+    cout << "chose " << chosen_card->display_name << endl;
+  } else {
+    cout << "chose not to play action" << endl;
+  }
+  return chosen_card;
 }
 
+double Strategy::ActionPlayValue(const Card& card,
+				 const Player* player,
+				 const Game* game) const {
+  switch (card.card_name) {
+  case SMITHY:
+     if (player->actions > 1) return 0.5; else return 0.1;
+  case VILLAGE:
+    if (player->actions <= 1) return 1.0; else return 0.6;
+  default:
+    cout << "Unhandled card in ActionPlayValue!!" << endl;
+    return -1.0;
+  }
+}
+				 
 vector<CardName> Strategy::ChooseBuys(const Player* player,
 				      const Game* game) const {
   // Default dumbest strategy, always buys most expensive card it can,

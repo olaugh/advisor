@@ -99,9 +99,15 @@ void Player::PlayAction(Game* game, const Strategy* strategy,
   cards_in_play.push_back(cards_in_hand[i]);
   hand.RemoveAt(i);
   cout << "Playing a " << card->display_name << endl;
-  cout << "Drawing " << card->action_plus_cards << " cards" << endl;
-  for (int j = 0; j < card->action_plus_cards; ++j) {
-    DrawFromDeck(1, &hand, g);
+  if (card->action_plus_actions > 0) {
+    cout << "Plus " << card->action_plus_actions << " actions" << endl;
+    actions += card->action_plus_actions;
+  }
+  if (card->action_plus_cards > 0) {
+    cout << "Drawing " << card->action_plus_cards << " cards" << endl;
+    for (int j = 0; j < card->action_plus_cards; ++j) {
+      DrawFromDeck(1, &hand, g);
+    }
   }
   ReinflateCardsInHand();
 }

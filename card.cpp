@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "card.h"
 
 int Card::Cost() const {
@@ -23,6 +25,11 @@ bool Card::IsVictory() const {
 
 bool Card::IsAction() const {
   return HasType(ACTION);
+}
+
+bool Card::IsTerminal() const {
+  assert(IsAction());
+  return action_plus_actions > 0;
 }
 
 Copper::Copper() {
@@ -116,6 +123,20 @@ Smithy::Smithy() {
   action_plus_cards = 3;
 }
 
+Village::Village() {
+  card_types.insert(ACTION);
+
+  card_name = VILLAGE;
+
+  display_name = "Village";
+  display_plural = "Villages";
+
+  base_cost = 3;
+
+  action_plus_actions = 2;
+  action_plus_cards = 1;
+}
+
 Card* Card::MakeCard(CardName card_name) {
   switch (card_name) {
   case COPPER: return new Copper;
@@ -124,9 +145,10 @@ Card* Card::MakeCard(CardName card_name) {
   case ESTATE: return new Estate;
   case DUCHY: return new Duchy;
   case PROVINCE: return new Province;
-    
+
+  case VILLAGE: return new Village;
   case SMITHY: return new Smithy;
-    
+  
   default: return nullptr;
   }
   return nullptr;
