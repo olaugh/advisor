@@ -25,7 +25,7 @@ class Player {
 		  std::mt19937& g);
   int FindCardIndexInHand(CardName card_name) const;
   
-  void BuyPhase(Game* game, const Strategy* strategy);
+  void BuyPhase(Game* game, const Strategy* strategy, std::mt19937& g);
   void PlayAllTreasures(Game* game);
   bool PlayTreasure(Game* game);
   void PlayCardAsTreasure(int i, Game* game);

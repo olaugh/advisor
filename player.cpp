@@ -52,7 +52,7 @@ void Player::PlayTurn(Game* game, const Strategy* strategy, std::mt19937& g) {
   InitializeTurn(game);
   InflateCardsInHand();
   ActionPhase(game, strategy, g);
-  BuyPhase(game, strategy);
+  BuyPhase(game, strategy, g);
   CleanUp(game, strategy);
   DrawToHand(g);
 }
@@ -122,12 +122,12 @@ int Player::FindCardIndexInHand(CardName card_name) const {
   return -1;
 }
 
-void Player::BuyPhase(Game* game, const Strategy* strategy) {
+void Player::BuyPhase(Game* game, const Strategy* strategy, std::mt19937& g) {
   cout << "BuyPhase(...)" << endl;
   PlayAllTreasures(game);
   ShowHand();
   ShowInPlay();
-  vector<CardName> buys = strategy->ChooseBuys(this, game);
+  vector<CardName> buys = strategy->ChooseBuys(this, game, g);
   for (CardName card_name : buys) {
     BuyCard(game, strategy, card_name);
   }

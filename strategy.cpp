@@ -9,25 +9,6 @@ using std::cout;
 using std::endl;
 using std::vector;
 
-namespace {
-  const Card* MostExpensiveBuyWith(const Player* player,
-				   const Game* game,
-				   const vector<Card> cards,
-				   int coins) {
-    const Card* most_expensive_card = nullptr;
-    int most_expensive_cost = -1;
-    for (const Card& card : cards) {
-      int cost = card.Cost();
-      if (cost > most_expensive_cost &&
-	  player->CanBuyWith(card, coins, game)) {
-	most_expensive_cost = cost;
-	most_expensive_card = &card;
-      }
-    }
-    return most_expensive_card;
-  }
-}  // namespace
-
 const Card* Strategy::ChooseAction(const Player* player,
 				   const Game* game) const {
   double best_action_value = -999;
@@ -50,6 +31,23 @@ const Card* Strategy::ChooseAction(const Player* player,
   return chosen_card;
 }
 
+double Strategy::BuyValue(const Card& card,
+			  const Player* player,
+			  const Game* game,
+			  std::mt19937& g) const {
+  return GainValue(card, player, game, g);
+}
+
+double Strategy::GainValue(const Card& card,
+			   const Player* player,
+			   const Game* game,
+			   std::mt19937& g) const {
+  const double hacky_estimate = 0.25 * pow(card.base_cost, 1.5) - 1;
+  std::normal_distribution<> dist{0, 0.4};
+  const double noise = dist(g);
+  return hacky_estimate + noise;
+}
+
 double Strategy::ActionPlayValue(const Card& card,
 				 const Player* player,
 				 const Game* game) const {
@@ -63,12 +61,32 @@ double Strategy::ActionPlayValue(const Card& card,
     return -1.0;
   }
 }
+
+const Card* Strategy::BestBuyWith(const Player* player,
+				  const Game* game,
+				  const vector<Card> cards,
+				  int coins,
+				  std::mt19937& g) const {
+  const Card* best_to_buy = nullptr;
+  double best_value = 0.0;
+  for (const Card& card : cards) {
+    if (player->CanBuyWith(card, coins, game)) {
+      double value = BuyValue(card, player, game, g);
+      cout << "buy " << card.display_name << "? value: " << value << endl;
+      if (value > best_value) {
+	best_value = value;
+	best_to_buy = &card;
+      }
+    }
+  }
+  return best_to_buy;
+}
 				 
 vector<CardName> Strategy::ChooseBuys(const Player* player,
-				      const Game* game) const {
-  // Default dumbest strategy, always buys most expensive card it can,
-  // if it costs at least 2 coins.
-
+				      const Game* game,
+				      std::mt19937& g) const {
+  // Default dumbest strategy, always greedily buys best card it can according
+  // to BuyValue, if it has positive value.
   vector<CardName> buys;
   if (player->buys == 0) return buys;
 
@@ -80,14 +98,13 @@ vector<CardName> Strategy::ChooseBuys(const Player* player,
     cout << "Card: " << card.display_name << ", cost: "
 	 << card.Cost() << endl;
   }
-  
+
+  // What happens if you buy the last card in a pile?
+  // Obviously this can't handle multiple buys correctly yet.
+  // What if there are on-buy or on-gain effects that change the values?
   for (int i = 0; i < player->buys; ++i) {
-    const Card* card = MostExpensiveBuyWith(player, game, cards, coins);
+    const Card* card = BestBuyWith(player, game, cards, coins, g);
     if (card == nullptr) {
-      break;
-    }
-    if (card->Cost() < 2) {
-      // Don't buy
       break;
     }
     buys.push_back(card->card_name);
