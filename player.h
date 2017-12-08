@@ -17,7 +17,8 @@ class Player {
   void PutDiscardPileInDeckAndShuffle(std::mt19937& g);
   
   void PlayTurn(Game* game, const Strategy* strategy, std::mt19937& g);
-  
+  void BuyCleanUpAndDraw(Game* game, const Strategy* strategy,
+			 const vector<Card>& cards_to_buy, std::mt19937& g);
   void ActionPhase(Game* game, const Strategy* strategy, std::mt19937& g);
   bool PlayAction(Game* game, const Strategy* strategy,
 		  std::mt19937& g);

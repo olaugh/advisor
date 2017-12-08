@@ -57,6 +57,21 @@ void Player::PlayTurn(Game* game, const Strategy* strategy, std::mt19937& g) {
   DrawToHand(g);
 }
 
+void Player::BuyCleanUpAndDraw(Game* game, const Strategy* strategy,
+			       const vector<Card>& cards_to_buy,
+			       std::mt19937& g) {
+  std::cout << "BuyCleanUpAndDraw(...)" << endl;;
+  // Treasures have already been played.
+  //PlayAllTreasures(game);
+  ShowHand();
+  ShowInPlay();
+  for (const Card& card : cards_to_buy) {
+    BuyCard(game, strategy, card.card_name);
+  }
+  CleanUp(game, strategy);
+  DrawToHand(g);
+}
+
 // Eventually needs to handle overpayment.
 void Player::BuyCard(Game* game, const Strategy* strategy,
 		     CardName card_name) {
@@ -72,6 +87,8 @@ void Player::InitializeTurn(Game* game) {
   actions = 1;
   coins = 0;
   buys = 1;
+  cards_in_hand.clear();
+  cards_in_play.clear();
 }
 
 void Player::ActionPhase(Game* game, const Strategy* strategy, std::mt19937& g) {

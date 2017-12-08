@@ -12,6 +12,7 @@ class CardSet {
  public:
   void Shuffle(std::mt19937& g);
   void Draw(int n, CardSet* dest);
+  void Gain(int n, CardSet* dest);
   bool IsEmpty() const;
   void RemoveAt(int i);
   void Clear();

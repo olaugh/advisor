@@ -11,7 +11,10 @@ class Game;
 class Player;
 
 class Strategy {
+ private:
+  int depth = 0;
  public:
+  const Strategy* DeeperClone() const;
   const Card* ChooseAction(const Player* player, const Game* game) const;
   std::vector<CardName>
     ChooseBuys(const Player* player, const Game* game, std::mt19937& g) const;
@@ -29,6 +32,7 @@ class Strategy {
   double ActionPlayValue(const Card& card,
 			 const Player* player,
 			 const Game* game) const;
+  void SimAllBuys(const Player* player, const Game* game, std::mt19937& g) const;
 };
 
 #endif

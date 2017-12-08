@@ -40,5 +40,5 @@ const Card* Pile::TopCard() const {
 
 void Pile::TakeCard(CardSet* dest) {
   assert(!IsEmpty());
-  cards.Draw(1, dest);
+  cards.Gain(1, dest);
 }

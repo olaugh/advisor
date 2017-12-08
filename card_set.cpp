@@ -23,6 +23,18 @@ void CardSet::Draw(int n, CardSet* dest) {
   }
 }
 
+void CardSet::Gain(int n, CardSet* dest) {
+  for (int i = 0; i < n; ++i) {
+    if (!cards.empty()) {
+      const CardName& card_name = cards.back();
+      std::unique_ptr<Card> card(Card::MakeCard(card_name));
+      cout << "Gained a " << card->display_name << endl;
+      dest->cards.push_back(cards.back());
+      cards.pop_back();
+    }
+  }
+}
+
 bool CardSet::IsEmpty() const {
   return cards.empty();
 }

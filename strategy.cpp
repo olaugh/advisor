@@ -9,6 +9,12 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+const Strategy* Strategy::DeeperClone() const {
+  Strategy* strategy = new Strategy;
+  strategy->depth = depth + 1;
+  return strategy;
+}
+
 const Card* Strategy::ChooseAction(const Player* player,
 				   const Game* game) const {
   double best_action_value = -999;
@@ -81,7 +87,34 @@ const Card* Strategy::BestBuyWith(const Player* player,
   }
   return best_to_buy;
 }
-				 
+
+void Strategy::SimAllBuys(const Player* player,
+			  const Game* game,
+			  std::mt19937& g) const {
+  const vector<Card> cards = game->CardsAtopPiles();
+  std::unique_ptr<const Strategy> sim_strategy(DeeperClone());
+  std::uniform_int_distribution<> dist(0, 1 << 24);  
+  long seed = dist(g);
+  for (const Card& card : cards) {
+    if (player->CanBuyWith(card, player->coins, game)) {
+      cout << "sim buying " << card.display_name << endl;
+      for (int i = 0; i < 8; ++i) {
+	std::cout << "sim iteration: " << i << std::endl;
+	std::mt19937 sim_g(seed << 32 | i);
+	Game game_copy = *game;
+	Player player_copy = *player;
+	player_copy.BuyCleanUpAndDraw(&game_copy, sim_strategy.get(),
+				      {card}, sim_g);
+	game_copy.FinishTurn({sim_strategy.get(), sim_strategy.get()}, sim_g);
+	// This is wrong because it assumes perfect information of the opponent's
+	// current hand, our deck, and their deck and discard piles. No varation
+        // will occur until shuffles. Instead, all unknowns should be randomized.
+	game_copy.FinishGame({sim_strategy.get(), sim_strategy.get()}, sim_g);
+      }
+    }
+  }
+}
+
 vector<CardName> Strategy::ChooseBuys(const Player* player,
 				      const Game* game,
 				      std::mt19937& g) const {
@@ -99,6 +132,10 @@ vector<CardName> Strategy::ChooseBuys(const Player* player,
 	 << card.Cost() << endl;
   }
 
+  if (depth == 0) {
+    SimAllBuys(player, game, g);
+  }
+  
   // What happens if you buy the last card in a pile?
   // Obviously this can't handle multiple buys correctly yet.
   // What if there are on-buy or on-gain effects that change the values?

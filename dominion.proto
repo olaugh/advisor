@@ -1,0 +1,70 @@
+enum DecisionType {
+  BUY = 0;
+  GAIN = 1;
+  PLAY_ACTION = 2;
+  PLAY_TREASURE = 3;
+  TRASH = 4;
+}
+
+enum Card {
+  CELLAR = 0;
+  CHAPEL = 1;
+  MOAT = 2;
+  HARBINGER = 3;
+  MERCHANT = 4;
+  VASSAL = 5;
+  VILLAGE = 6;
+  WORKSHOP = 7;
+  BUREAUCRAT = 8;
+  MILITIA = 9;
+  MONEYLENDER = 10;
+  POACHER = 11;
+  REMODEL = 12;
+  SMITHY = 13;
+  THRONE_ROOM = 14;
+  BANDIT = 15;
+  COUNCIL_ROOM = 16;
+  FESTIVAL = 17;
+  LABORATORY = 18;
+  LIBRARY = 19;
+  MARKET = 20;
+  MINE = 21;
+  SENTRY = 22;
+  WITCH = 23;
+  ARTISAN = 24;
+  
+  CURSE = 25;
+  
+  COPPER = 26;
+  SILVER = 27;
+  GOLD = 28;
+  
+  ESTATE = 29;
+  DUCHY = 30;
+  PROVINCE = 31;
+
+  GARDENS = 32;
+}
+
+message PlayerState {
+  optional int32 num_cards = 1;
+  optional int32 total_coin = 2;
+  optional int32 vp = 3;
+}
+
+message GameState {
+  optional int32 player_on_turn = 1;
+  optional int32 turn_number = 2;
+  optional PlayerState player = 3;
+  optional PlayerState opponent = 4;
+}
+
+message Option {
+  repeated Card card = 1;
+}
+
+message Decision {
+  optional GameState state = 1;
+  optional DecisionType type = 2;
+  repeated Option option = 3;
+}
